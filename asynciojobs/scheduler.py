@@ -192,6 +192,13 @@ class Scheduler(PureScheduler, AbstractJob):
                 job._list_safe(recursive)               # pylint: disable=W0212
             print('--end--', self.repr_id())
 
+    def _itterate_job(self):
+        for job in self.jobs:
+            ret = job._itterate_job()
+            for it in ret:
+                yield it
+            
+
     def dot_cluster_name(self):
         """
         assigns a name to the subgraph that will represent

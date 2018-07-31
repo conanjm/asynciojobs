@@ -620,6 +620,7 @@ class PureScheduler:                                    # pylint: disable=r0902
             print()
 
     ####################
+
     def shutdown(self):
         """
         A synchroneous wrapper around :meth:`co_shutdown()`.
@@ -811,6 +812,7 @@ class PureScheduler:                                    # pylint: disable=r0902
             # clear the exception(s) in done
             await self._tidy_tasks_exception(done)
             # do we have at least one critical job with an exception ?
+
             critical_failure = False
             for done_task in done:
                 done_job = done_task._job               # pylint: disable=W0212
@@ -823,6 +825,7 @@ class PureScheduler:                                    # pylint: disable=r0902
                     # make sure these ones show up even if not in debug mode
                     if DEBUG:
                         self._show_task_stack(done_task, "DEBUG")
+
             if critical_failure:
                 await self._tidy_tasks(pending)
                 await self.co_shutdown()
@@ -841,6 +844,8 @@ class PureScheduler:                                    # pylint: disable=r0902
             nb_jobs_done += len(done_jobs_not_forever)
 
             if nb_jobs_done == nb_jobs_finite:
+                # we are done but shouldn't we check if any of the forever job
+                # exited with an exception?
                 if DEBUG:
                     print("PureScheduler.co_run: {} CLEANING UP at iter. {}/{}"
                           .format(4 * '-', nb_jobs_done, nb_jobs_finite))
@@ -961,6 +966,12 @@ class PureScheduler:                                    # pylint: disable=r0902
         for job in self.jobs:
             # pass as stack a list of indexes
             job._list_safe(True)                        # pylint: disable=W0212
+
+    def itterate_job(self):
+        for job in self.jobs:
+            ret = job._itterate_job()
+            for it in ret:
+                yield it
 
     def __repr__(self):
         # linter says unused variable but it is indeed used in f-string
